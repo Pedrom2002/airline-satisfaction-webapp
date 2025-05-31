@@ -62,8 +62,8 @@ pip install -r requirements.txt
 ## 🚀 Como Rodar Localmente
 
 1. Abra o terminal e clone o repositório:
-   git clone https://github.com/seu-usuario/flight-satisfaction-app.git
-   cd flight-satisfaction-app
+   git clone https://github.com/Pedrom2002/airline-satisfaction-webapp
+   cd airline-satisfaction.webapp
    
 2. Crie e ative um ambiente virtual(preferivel):
    python -m venv .venv

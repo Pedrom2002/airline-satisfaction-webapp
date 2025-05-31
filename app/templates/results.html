@@ -18,39 +18,38 @@
   <a href="{{ url_for('auth.logout') }}" class="text-gray-200 font-semibold hover:text-blue-400 transition-colors">Logout</a>
 </nav>
 
-
-<main class="flex-grow max-w-4xl mx-auto p-6 space-y-8">
+<main class="flex-grow max-w-7xl mx-auto p-6 space-y-12">
 
   <!-- Resumo de Previsões -->
   <section class="space-y-6">
-    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center relative">Resumo de Previsões</h2>
+    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center">Resumo de Previsões</h2>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Passageiros</h3>
         <p class="text-xl font-extrabold">{{ num_passengers }}</p>
       </div>
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Taxa de Satisfação</h3>
         <p class="text-xl font-extrabold">{{ satisfaction_rate }}%</p>
       </div>
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Confiança Média</h3>
         <p class="text-xl font-extrabold">{{ avg_proba }}%</p>
       </div>
       {% if avg_service_entropy is not none %}
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Entropia Média</h3>
         <p class="text-xl font-extrabold">{{ avg_service_entropy }}</p>
       </div>
       {% endif %}
       {% if accuracy is not none %}
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Accuracy</h3>
         <p class="text-xl font-extrabold">{{ accuracy }}%</p>
       </div>
       {% endif %}
       {% if roc_auc is not none %}
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">ROC AUC</h3>
         <p class="text-xl font-extrabold">{{ roc_auc }}%</p>
       </div>
@@ -60,25 +59,25 @@
 
   <!-- Métricas de Atrasos e Serviço -->
   <section class="space-y-6">
-    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center relative">Métricas de Atrasos e Serviço</h2>
+    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center">Métricas de Atrasos e Serviço</h2>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Atraso Médio</h3>
         <p class="text-xl font-extrabold">{{ avg_total_delay }} min</p>
       </div>
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Índice de Atraso</h3>
         <p class="text-xl font-extrabold">{{ delay_indicator_rate }}%</p>
       </div>
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Service Score Médio</h3>
         <p class="text-xl font-extrabold">{{ avg_service_score }}</p>
       </div>
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Consistência do Serviço</h3>
         <p class="text-xl font-extrabold">{{ avg_service_consistency }}</p>
       </div>
-      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+      <div class="bg-gray-800 p-6 rounded-lg shadow text-center">
         <h3 class="text-lg font-medium mb-2">Delay Ratio Médio</h3>
         <p class="text-xl font-extrabold">{{ avg_delay_ratio }}</p>
       </div>
@@ -86,28 +85,28 @@
   </section>
 
   <!-- Gráficos principais -->
-  <section class="space-y-10 max-w-4xl mx-auto">
+  <section class="space-y-10">
     <div>
-      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center relative">Distribuição por Faixa Etária</h2>
+      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center">Distribuição por Faixa Etária</h2>
       <div class="overflow-x-auto">{{ age_group_html|safe }}</div>
     </div>
     <div>
-      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center relative">Categoria de Atrasos</h2>
+      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center">Categoria de Atrasos</h2>
       <div class="overflow-x-auto">{{ delay_cat_html|safe }}</div>
     </div>
     <div>
-      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center relative">Distribuição das Previsões</h2>
+      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center">Distribuição das Previsões</h2>
       <div class="overflow-x-auto">{{ graph_html|safe }}</div>
     </div>
     <div>
-      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center relative">Distribuição das Probabilidades</h2>
+      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center">Distribuição das Probabilidades</h2>
       <div class="overflow-x-auto">{{ prob_html|safe }}</div>
     </div>
   </section>
 
   <!-- Tabela de Correlações -->
-  <section class="space-y-6 max-w-full">
-    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center relative">Tabela Ordenada de Correlações (abs(corr) ≥ 0.1)</h2>
+  <section class="space-y-6">
+    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center">Tabela Ordenada de Correlações (abs(corr) ≥ 0.1)</h2>
     <div id="correlation-loading">Carregando tabela de correlações...</div>
     <div id="correlation-table-wrapper" class="hidden bg-gray-800 p-6 rounded-lg shadow overflow-x-auto">
       {% if tables and tables|length > 0 %}
@@ -119,28 +118,25 @@
   </section>
 
   <!-- Gráficos de pizza por variável -->
-  <section class="py-12 px-4 max-w-screen-2xl mx-auto">
-  <h2 class="text-4xl font-extrabold text-center text-blue-500 mb-8 relative before:content-[''] before:block before:w-20 before:h-1 before:bg-blue-500 before:mx-auto before:mt-2">Satisfação por Variável</h2>
-  <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-10">
-    {% for var, plot_html in pizza_imgs.items() %}
-    <div class="bg-gray-800 rounded-2xl overflow-hidden shadow-lg transform hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-      <div class="bg-blue-600 px-6 py-4">
-        <h3 class="text-lg font-semibold text-white text-center">{{ var }}</h3>
-      </div>
-      <div class="p-8">
-        <div class="w-full h-96">
-          {{ plot_html|safe }}
+  <section class="py-12 px-4">
+    <h2 class="text-4xl font-extrabold text-center text-blue-500 mb-8">Satisfação por Variável</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for var, plot_html in pizza_imgs.items() %}
+      <div class="bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+        <div class="bg-blue-600 px-4 py-3">
+          <h3 class="text-lg font-semibold text-white text-center">{{ var }}</h3>
+        </div>
+        <div class="p-6">
+          <div class="aspect-video w-full">{{ plot_html|safe }}</div>
         </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
-</section>
+  </section>
 
-
-  <!-- Dados com previsões. -->
-  <section class="space-y-6 max-w-full">
-    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center relative">Dados com Predições</h2>
+  <!-- Dados com previsões -->
+  <section class="space-y-6">
+    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center">Dados com Predições</h2>
     <div class="bg-gray-800 p-6 rounded-lg shadow overflow-x-auto">
       {% if df_table_html %}
         {{ df_table_html | safe }}
@@ -161,24 +157,11 @@
   © 2025 Airline Predictor
 </footer>
 
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script>
-  // Controle do botão de enviar CSV - Habilita somente se o arquivo for CSV
-  const fileInput = document.getElementById('csvFileInput');
-  const uploadButton = document.getElementById('uploadButton');
-
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files.length > 0) {
-      const fileName = fileInput.files[0].name.toLowerCase();
-      uploadButton.disabled = !fileName.endsWith('.csv');
-    } else {
-      uploadButton.disabled = true;
-    }
-  });
-
-  // DataTables e outras lógicas
-  $(document).ready(function() {
+  $(document).ready(function () {
     $('table.data:not(.correlation-sorted)').DataTable({
       order: [[2, 'desc']],
       pageLength: 10,
@@ -215,7 +198,7 @@
           },
           zeroRecords: "Nenhum registro encontrado"
         },
-        initComplete: function() {
+        initComplete: function () {
           $('#correlation-loading').hide();
           $('#correlation-table-wrapper').removeClass('hidden');
         }
