@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, session, send_file, abort, current_app
-from flask_restx import Namespace, Resource
 import os
 from app.database import get_db
 from app.auth import login_required

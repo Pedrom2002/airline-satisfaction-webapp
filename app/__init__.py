@@ -1,11 +1,12 @@
-import os
 from datetime import timedelta
 from flask import Flask, redirect, url_for
 from flask_wtf import CSRFProtect
-from flasgger import Swagger
+from flask_talisman import Talisman
+import os
 
 from app.database import init_db, close_connection
 from app.extensions import limiter  # Rate limiter
+
 
 def create_app(testing=False):
     app = Flask(__name__)
@@ -22,6 +23,16 @@ def create_app(testing=False):
         app.config['DATABASE'] = ':memory:'
         app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'tests', 'uploads')
 
+    # Detecta ambiente pela variável FLASK_ENV (default: development)
+    env = os.getenv('FLASK_ENV', 'development')  # <-- aqui foi alterado para 'development'
+
+    # Configurações importantes para cookies de sessão (segurança)
+    app.config.update(
+        SESSION_COOKIE_SECURE=(env != 'development'),  # True em produção, False em dev/local
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Strict'
+    )
+
     # Garante que a pasta de uploads existe
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -32,33 +43,24 @@ def create_app(testing=False):
     limiter.init_app(app)
     app.limiter = limiter
 
+    # Aplica Talisman APENAS se estiver em produção
+    if env == 'production':
+        Talisman(app,
+                 force_https=True,
+                 strict_transport_security=True,
+                 strict_transport_security_max_age=31536000,  # 1 ano em segundos
+                 strict_transport_security_include_subdomains=True)
+
     # Swagger / OpenAPI (somente se não estiver em modo de teste)
     if not testing:
-        swagger_config = {
-            "headers": [],
-            "specs": [
-                {
-                    "endpoint": "apispec",
-                    "route": "/apispec.yaml",
-                    "rule_filter": lambda rule: True,
-                    "model_filter": lambda tag: True,
-                }
-            ],
-            "static_url_path": "/flasgger_static",
-            "swagger_ui": True,
-            "specs_route": "/apidocs/"
-        }
-
-        # Caminho para o template OpenAPI YAML
         template_path = os.path.join(
             os.path.abspath(os.path.dirname(__file__)),
             os.pardir,
             'openapi.yaml'
         )
+        # Pode carregar o template ou configurar aqui
 
-        Swagger(app, config=swagger_config, template_file=template_path)
-
-    # Blueprints
+    # Importa blueprints e registra
     from app.auth import auth
     from app.prediction import prediction
     from app.history import history_bp
@@ -69,7 +71,7 @@ def create_app(testing=False):
     app.register_blueprint(history_bp, url_prefix='/history')
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
-    # Redirecionamento da raiz '/' para '/prediction'
+    # Redireciona '/' para '/prediction'
     @app.route('/')
     def index_redirect():
         return redirect(url_for('prediction.index'))

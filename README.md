@@ -1,6 +1,12 @@
 # Flight Satisfaction Predictor
 
 Um aplicativo web em Flask para prever a satisfação de passageiros em voos, integrado com métricas, visualizações interativas e histórico de predições.
+Utilizado o modelo criado por mim que esta disponivel nesta repo: [https://github.com/Pedrom2002/Airline-Passenger-Satisfaction]
+
+## Demo ao Vivo  
+Acesse a aplicação em: [https://airline-satisfaction-webapp.onrender.com]
+Demora a abrir pois esta hospedado no Render,plano gratuito logo o mesmo suspende o website quando nao é acessado regularmente.
+
 
 ---
 
@@ -21,29 +27,27 @@ Um aplicativo web em Flask para prever a satisfação de passageiros em voos, in
 Todas as bibliotecas utilizadas neste projeto estão listadas em `requirements.txt`. Principais:
 
 ```
-beautifulsoup4==4.13.4
-blinker==1.9.0
-click==8.2.1
-colorama==0.4.6
-coverage==7.8.2
 Flask==3.1.1
+Flask-Limiter==3.12
+flask-talisman==1.1.0
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.2
-joblib==1.5.1
-matplotlib==3.10.3
+flask-restx==1.3.0
+flasgger==0.9.7.1
+
 numpy==2.2.6
 pandas==2.2.3
-plotly==6.1.1
-pytest==8.3.5
-pytest-cov==6.1.1
-pytest-flask==1.3.0
 scikit-learn==1.6.1
-scipy==1.15.3
-soupsieve==2.7
-SQLAlchemy==2.0.41
-Werkzeug==3.1.3
-WTForms==3.2.1
 xgboost==3.0.2
+
+plotly==6.1.1
+matplotlib==3.10.3
+
+python-dotenv==1.1.0
+
+pytest==8.3.5
+pytest-flask==1.3.0
+pytest-cov==6.1.1
 ```
 
 Para instalar todas:
@@ -51,13 +55,7 @@ Para instalar todas:
 pip install -r requirements.txt
 ```
 
----
 
-## 📸 Captura de Tela
-
-![](docs/screenshot.png)
-
-> Exemplo da página de resultados com métricas, gráficos interativos e botão de download.
 
 ---
 
@@ -78,14 +76,9 @@ pip install -r requirements.txt
    ```bash
    pip install -r requirements.txt
    ```
-4. Defina variáveis de ambiente (exemplo .env):
-   ```ini
-   FLASK_APP=run.py
-   FLASK_ENV=development
-   SECRET_KEY=uma-chave-secreta
-   DATABASE_URL=sqlite:///data/app.db
+  
    ```
-5. Inicialize o banco de dados:
+4. Inicialize o banco de dados:
    ```bash
    flask db upgrade
    ```

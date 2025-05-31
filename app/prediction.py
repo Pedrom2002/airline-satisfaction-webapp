@@ -1,5 +1,4 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, current_app as app
-from flask_restx import Namespace
 from markupsafe import Markup
 import os
 import uuid

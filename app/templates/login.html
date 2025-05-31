@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Login - Airline Predictor</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen font-sans">
@@ -29,6 +30,7 @@
     {% endwith %}
 
     <form method="post" action="{{ url_for('auth.login') }}" class="space-y-6">
+      <!-- Token CSRF para proteção -->
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
       <div class="form-group">
