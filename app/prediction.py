@@ -39,40 +39,44 @@ def allowed_file(filename):
 def index():
     if request.method == 'POST':
         user_id = session.get('user_id')
-        file = request.files.get('file')
+        action = request.form.get('action')
 
-        # Caso não tenha enviado arquivo, tenta usar CSV de teste local
-        if not file or file.filename == '':
+        if action == 'use_sample':
+            # Usar CSV de exemplo local
             test_path = os.path.join('static', 'test.csv')
             if not os.path.exists(test_path):
                 flash('Arquivo de exemplo não encontrado.', 'error')
                 return redirect(request.url)
             df = pd.read_csv(test_path)
             original_filename = 'test.csv'
-        else:
-            # Validação do arquivo enviado para garantir que seja CSV
+
+        elif action == 'upload':
+            file = request.files.get('file')
+
+            if not file or file.filename == '':
+                flash('Por favor, envie um arquivo CSV para processar.', 'error')
+                return redirect(request.url)
+
             if not allowed_file(file.filename):
                 flash('Por favor, envie um arquivo CSV válido.', 'error')
                 return redirect(request.url)
+
             try:
                 df = pd.read_csv(file)
                 original_filename = file.filename
             except Exception as e:
                 flash(f'Erro ao ler o CSV: {e}', 'error')
                 return redirect(request.url)
+        else:
+            flash('Ação inválida.', 'error')
+            return redirect(request.url)
 
         # ------------------- Engenharia de features -------------------
 
-        # Soma dos atrasos de partida e chegada, preenchendo NaN com zero
         df['total_delay'] = df['Departure Delay in Minutes'].fillna(0) + df['Arrival Delay in Minutes'].fillna(0)
-
-        # Razão do atraso em relação à distância do voo (mais informativo que atraso bruto)
         df['delay_ratio'] = df['total_delay'] / (df['Flight Distance'] + 1)
-
-        # Indicador binário se houve atraso (>0 minutos)
         df['delay_indicator'] = (df['total_delay'] > 0).astype(int)
 
-        # Lista das colunas de serviço para cálculo de score médio e consistência
         service_cols = [
             'Inflight wifi service', 'Departure/Arrival time convenient', 'Ease of Online booking',
             'Gate location', 'Food and drink', 'Online boarding', 'Seat comfort',
@@ -80,53 +84,34 @@ def index():
             'Baggage handling', 'Checkin service', 'Inflight service', 'Cleanliness'
         ]
 
-        # Score médio dos serviços avaliados para cada passageiro
         df['service_score'] = df[service_cols].mean(axis=1)
-
-        # Desvio padrão das avaliações de serviço para medir consistência
         df['service_consistency'] = df[service_cols].std(axis=1)
 
-        # --- Cálculo de entropia das notas de serviço (service_entropy) ---
         eps = 1e-9
         total_service = df[service_cols].sum(axis=1) + eps
         probs = df[service_cols].div(total_service, axis=0)
         df['service_entropy'] = - (probs * np.log(probs + eps)).sum(axis=1)
-        # ---------------------------------------------------------------
 
-        # Criação de categorias de faixa etária para análise posterior
         df['age_group'] = pd.cut(df['Age'], bins=[0,18,35,60,120], labels=['Child','Young','Adult','Senior'])
 
-        # Categorias de atraso para facilitar visualizações
         bins = [-1,0,15,60,np.inf]
         labels = ['No Delay','Short','Moderate','Severe']
         df['delay_category'] = pd.cut(df['total_delay'], bins=bins, labels=labels)
 
-        # Clustering não supervisionado baseado em service_score e total_delay
         kmeans = KMeans(n_clusters=3, random_state=42)
         df['cluster'] = kmeans.fit_predict(df[['service_score', 'total_delay']])
 
-        # Preparação do dataframe para predição removendo colunas não usadas pelo modelo
         df_model = df.drop(columns=['id', 'satisfaction', 'age_group', 'delay_category', 'cluster'], errors='ignore')
 
-        # Aplicação do pré-processador para preparar os dados para o modelo
         X_proc = preprocessor.transform(df_model)
-
-        # Reconstrução do DataFrame com colunas correspondentes após pré-processamento
         df_proc = pd.DataFrame(X_proc, columns=feature_columns)
 
-        # Predição da satisfação (classe) pelo modelo treinado
         preds = model.predict(df_proc)
-
-        # Probabilidades associadas à classe "satisfeito"
         probas = model.predict_proba(df_proc)[:, 1]
 
-        # Decodifica as predições numéricas para labels originais
         df['prediction'] = label_encoder.inverse_transform(preds)
-
-        # Adiciona as probabilidades ao dataframe
         df['probability'] = probas
 
-        # Cálculo das métricas de desempenho, se o verdadeiro label estiver disponível
         if 'satisfaction' in df.columns:
             true_labels = label_encoder.transform(df['satisfaction'])
             accuracy = round(accuracy_score(true_labels, preds) * 100, 2)
@@ -135,33 +120,26 @@ def index():
             accuracy = None
             roc_auc = None
 
-        # Flag opcional para gráficos de pizza
         if 'satisfaction_flag' not in df.columns and 'satisfaction' in df.columns:
             df['satisfaction_flag'] = (df['satisfaction'] == 'satisfied').astype(int)
 
         # ------------------- EDA e visualizações -------------------
 
-        # Gera tabela EDA principal e retorna HTML para renderizar na página
         eda_html, df = perform_eda(df)
-
-        # Cria tabela de correlações ordenadas para análise detalhada
         corr_df = build_sorted_correlation_table(df)
         corr_table_html = corr_df.to_html(classes='data correlation-sorted', index=False)
 
-        # Gera gráficos interativos para diferentes aspectos da análise
         graph_html       = generate_prediction_distribution_plot(df)
         prob_html        = generate_probability_distribution_plot(probas)
         age_group_html   = generate_age_group_distribution(df)
         delay_cat_html   = generate_delay_category_plot(df)
 
-        # Gera gráficos estilo pizza para várias colunas categóricas ou agrupadas
         pizza_imgs = generate_pizza_charts(df, [
             'Online boarding', 'Inflight entertainment', 'Seat comfort', 'On-board service', 'Cleanliness', 'Leg room service',
             'Inflight wifi service', 'Baggage handling', 'Checkin service', 'Inflight service', 'Food and drink',
             'Ease of Online booking', 'Flight Distance_grupo', 'Age_grupo'
         ])
 
-        # Prepara o dataframe para exibição na tabela HTML da página, limita a 100 linhas
         df_display = df.copy()
         if 'satisfaction_flag' in df_display.columns:
             df_display = df_display.drop(columns=['satisfaction_flag'])
@@ -172,7 +150,6 @@ def index():
         df_display_limited = df_display.head(100)
         df_table_html = df_display_limited.to_html(classes='data', index=False)
 
-        # Métricas agregadas
         metrics = {
             'avg_total_delay': round(df['total_delay'].mean(), 2),
             'avg_delay_ratio': round(df['delay_ratio'].mean(), 4),
@@ -182,11 +159,9 @@ def index():
             'avg_service_entropy': round(df['service_entropy'].mean(), 4)
         }
 
-        # Salvar CSV processado
         out_csv = os.path.join(app.config['UPLOAD_FOLDER'], f"{uuid.uuid4().hex}_predictions.csv")
         df.to_csv(out_csv, index=False)
 
-        # Salvar no banco de dados
         conn = get_db()
         cursor = conn.execute(
             '''INSERT INTO uploads (user_id, filename, original_filename, processed, num_rows)
@@ -196,7 +171,6 @@ def index():
         conn.commit()
         upload_id = cursor.lastrowid
 
-        # Salvar previsões no banco
         for idx, row in df.iterrows():
             passenger_id = str(row.get('id', ''))
             conn.execute(
@@ -232,5 +206,5 @@ def index():
             filename=os.path.basename(out_csv)
         )
 
-    # Para GET, renderiza a página de upload
+    # GET renderiza página de upload
     return render_template('index.html')

@@ -116,14 +116,16 @@
 
         <button
           type="submit"
+          name="action"
+          value="upload"
           class="w-full bg-sky-400 hover:bg-sky-500 text-gray-900 font-bold py-3 rounded-lg transition-colors mb-3"
         >
           Enviar
         </button>
         <button
           type="submit"
-          name="use_example"
-          value="true"
+          name="action"
+          value="use_sample"
           class="w-full bg-green-600 hover:bg-green-700 text-gray-200 font-semibold py-3 rounded-lg transition-colors"
         >
           Usar CSV de Exemplo
@@ -166,16 +168,13 @@
       // Validação do formulário de upload
       const fileInput = document.getElementById("file");
       const uploadForm = document.querySelector("form");
-      const submitButton = uploadForm.querySelector("button[type='submit']:not([name='use_example'])");
+      const submitButton = uploadForm.querySelector("button[type='submit']:not([name='action'])");
 
       uploadForm.addEventListener("submit", (e) => {
-        const isExample = e.submitter && e.submitter.name === "use_example";
+        const isExample = e.submitter && e.submitter.name === "action" && e.submitter.value === "use_sample";
         if (isExample) return;
 
-        if (!fileInput.files.length) {
-          e.preventDefault();
-          alert("Por favor, selecione um arquivo CSV antes de enviar.");
-        }
+      
       });
     });
   </script>
