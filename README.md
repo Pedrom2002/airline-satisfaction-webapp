@@ -82,7 +82,7 @@ pip install -r requirements.txt
    
 6. Acesse em `http://localhost:5000`
 
-
+7.Para testar a pagina de admin criar um utilizador com o nome "test"
 ---
 
 ## 🏗️ Estrutura de Pastas
