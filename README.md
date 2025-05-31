@@ -61,32 +61,27 @@ pip install -r requirements.txt
 
 ## 🚀 Como Rodar Localmente
 
-1. Clone o repositório:
-   ```bash
+1. Abra o terminal e clone o repositório:
    git clone https://github.com/seu-usuario/flight-satisfaction-app.git
    cd flight-satisfaction-app
-   ```
-2. Crie e ative um ambiente virtual:
-   ```bash
+   
+2. Crie e ative um ambiente virtual(preferivel):
    python -m venv .venv
    .\.venv\Scripts\activate   # Windows
    source .venv/bin/activate  # Linux/macOS
-   ```
+   
 3. Instale as dependências:
-   ```bash
    pip install -r requirements.txt
-   ```
-  
-   ```
+   
 4. Inicialize o banco de dados:
-   ```bash
    flask db upgrade
-   ```
-6. Execute a aplicação:
-   ```bash
+
+5. Execute a aplicação:
+
    python -m flask run     
-   ```
-7. Acesse em `http://localhost:5000`
+   
+6. Acesse em `http://localhost:5000`
+
 
 ---
 

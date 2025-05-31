@@ -9,27 +9,42 @@
 
   <h1 class="text-3xl text-sky-400 font-bold mb-6 select-none">Registros da tabela {{ table }}</h1>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="mb-6 space-y-2">
+        {% for category, message in messages %}
+          <div class="px-4 py-3 rounded-md text-sm font-semibold
+                      {% if category == 'success' %}
+                        bg-green-800 text-green-200
+                      {% elif category == 'error' %}
+                        bg-red-800 text-red-200
+                      {% else %}
+                        bg-gray-700 text-gray-300
+                      {% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
   <form method="get" action="{{ url_for('admin.admin_table', table=table) }}" 
-        class="mb-6 flex flex-wrap gap-3 items-center"
-        >
+        class="mb-6 flex flex-wrap gap-3 items-center">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <input type="text" name="search" placeholder="Pesquisar..." 
            value="{{ search | default('') }}"
-           class="px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-400 flex-grow min-w-[180px]"
-           />
+           class="px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-400 flex-grow min-w-[180px]" />
 
     <label for="column" class="ml-2">Coluna:</label>
     <select name="column" id="column"
-            class="px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-400"
-            >
+            class="px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-400">
       {% for col in columns %}
       <option value="{{ col }}" {% if col == column %}selected{% endif %}>{{ col }}</option>
       {% endfor %}
     </select>
 
     <button type="submit"
-            class="bg-sky-400 hover:bg-sky-500 text-gray-900 font-semibold px-5 py-2 rounded-md transition-colors"
-            >
+            class="bg-sky-400 hover:bg-sky-500 text-gray-900 font-semibold px-5 py-2 rounded-md transition-colors">
       Buscar
     </button>
   </form>
@@ -53,16 +68,14 @@
           {% endfor %}
           <td class="border border-gray-700 px-4 py-2 space-x-2">
             <a href="{{ url_for('admin.admin_edit', table=table, record_id=row['id']) }}"
-               class="inline-block bg-sky-400 hover:bg-sky-500 text-gray-900 font-bold px-3 py-1 rounded-md transition-colors"
-               >
+               class="inline-block bg-sky-400 hover:bg-sky-500 text-gray-900 font-bold px-3 py-1 rounded-md transition-colors">
                Editar
             </a>
             <form action="{{ url_for('admin.admin_delete', table=table, record_id=row['id']) }}" method="POST" class="inline"
-                  onsubmit="return confirm('Tem certeza que deseja deletar o registro {{ row[id] }}?')"
-                  >
+                  onsubmit="return confirm('Tem certeza que deseja deletar o registro ?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
               <button type="submit"
-                      class="bg-red-600 hover:bg-red-700 text-gray-100 font-bold px-3 py-1 rounded-md transition-colors"
-                      >
+                      class="bg-red-600 hover:bg-red-700 text-gray-100 font-bold px-3 py-1 rounded-md transition-colors">
                 Deletar
               </button>
             </form>
@@ -76,8 +89,7 @@
   <div class="text-center text-gray-400 font-semibold space-x-6 mb-10 select-none">
     {% if page > 1 %}
     <a href="{{ url_for('admin.admin_table', table=table, page=page-1, search=search, column=column) }}"
-       class="text-sky-400 hover:underline focus:underline focus:outline-none"
-       >
+       class="text-sky-400 hover:underline focus:underline focus:outline-none">
        ← Anterior
     </a>
     {% endif %}
@@ -86,8 +98,7 @@
 
     {% if page < total_pages %}
     <a href="{{ url_for('admin.admin_table', table=table, page=page+1, search=search, column=column) }}"
-       class="text-sky-400 hover:underline focus:underline focus:outline-none"
-       >
+       class="text-sky-400 hover:underline focus:underline focus:outline-none">
        Próxima →
     </a>
     {% endif %}
@@ -98,8 +109,7 @@
   {% endif %}
 
   <a href="{{ url_for('admin.admin_index') }}"
-     class="inline-block mt-8 text-sky-400 hover:underline focus:underline focus:outline-none"
-     >
+     class="inline-block mt-8 text-sky-400 hover:underline focus:underline focus:outline-none">
      ← Voltar ao dashboard
   </a>
 

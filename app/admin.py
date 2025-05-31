@@ -6,6 +6,7 @@ from app.auth import login_required
 from flask import redirect, url_for, flash
 from app.extensions import limiter
 
+
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 # --- Decorator para garantir que o usuário seja admin ---
@@ -30,7 +31,7 @@ def admin_index():
 @admin_bp.route('/table/<table>/edit/<int:record_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-@limiter.limit("10 per minute")
+@limiter.limit("50 per minute")
 def admin_edit(table, record_id):
     if table not in ALLOWED_TABLES:
         abort(403)
@@ -53,8 +54,10 @@ def admin_edit(table, record_id):
             values
         )
         db.commit()
-        # Redireciona para a página de edição (ou outra que preferir)
-        return redirect(url_for('admin.admin_edit', table=table, record_id=record_id))
+
+        # ✅ Mensagem flash + redirecionamento para admin_table
+        flash("Alteração concluída!", "success")
+        return redirect(url_for('admin.admin_table', table=table))
 
     # GET: carrega dados do registro
     cursor.execute(f"SELECT * FROM {table} WHERE id = ?", (record_id,))
@@ -72,7 +75,7 @@ def admin_edit(table, record_id):
 
 @admin_bp.route('/table/<table>')
 @login_required
-@limiter.limit("10 per minute")
+@limiter.limit("50 per minute")
 @admin_required
 def admin_table(table):
     if table not in ALLOWED_TABLES:
@@ -133,7 +136,7 @@ from flask import flash, redirect, url_for
 
 @admin_bp.route('/table/<table>/delete/<int:record_id>', methods=['POST'])
 @login_required
-@limiter.limit("10 per minute")
+@limiter.limit("50 per minute")
 @admin_required
 def admin_delete(table, record_id):
     if table not in ALLOWED_TABLES:
