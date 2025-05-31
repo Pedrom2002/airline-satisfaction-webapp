@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br" >
+<head>
+  <meta charset="UTF-8" />
+  <title>Login - Airline Predictor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen font-sans">
+
+  <div class="login-container bg-gray-800 p-10 rounded-xl max-w-md w-full shadow-lg">
+    <h2 class="text-sky-400 text-3xl mb-6 text-center font-semibold">Login</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div>
+          {% for msg in messages %}
+            <p class="mb-2 text-center font-normal
+              {% if 'bloqueada' in msg.lower() %}
+                text-red-500 font-bold
+              {% else %}
+                text-pink-400
+              {% endif %}
+            ">
+              {{ msg }}
+            </p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('auth.login') }}" class="space-y-6">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-group">
+        <label for="username" class="block mb-2 text-gray-400 font-medium">Usuário</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="Digite seu usuário"
+          required
+          autofocus
+          class="w-full px-4 py-3 rounded-md bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="block mb-2 text-gray-400 font-medium">Senha</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Digite sua senha"
+          required
+          class="w-full px-4 py-3 rounded-md bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="w-full py-3 bg-sky-400 text-gray-900 font-semibold rounded-lg hover:bg-sky-500 transition-colors"
+      >
+        Entrar
+      </button>
+    </form>
+
+    <form action="{{ url_for('auth.register') }}" method="get" class="mt-4">
+      <button
+        type="submit"
+        class="w-full py-3 border-2 border-sky-400 text-sky-400 rounded-lg hover:bg-sky-400 hover:text-gray-900 transition-colors font-medium"
+      >
+        Sign Up
+      </button>
+    </form>
+  </div>
+
+</body>
+</html>

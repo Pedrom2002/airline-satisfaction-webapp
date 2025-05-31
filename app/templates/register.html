@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registrar - Airline Predictor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen p-4">
+  <div class="bg-gray-800 p-10 rounded-xl max-w-md w-full shadow-lg text-center">
+    <h2 class="text-sky-400 text-3xl font-semibold mb-6">Registrar</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div>
+          {% for msg in messages %}
+            <p class="mb-4 font-semibold {% if 'bloqueada' in msg.lower() %}text-red-500{% else %}text-pink-400{% endif %}">{{ msg }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('auth.register') }}" class="text-left space-y-6">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div>
+        <label for="username" class="block mb-2 text-gray-400 font-medium">Usuário</label>
+        <input type="text" id="username" name="username" placeholder="Escolha um usuário" required
+          class="w-full px-4 py-3 rounded-md bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+      </div>
+
+      <div>
+        <label for="email" class="block mb-2 text-gray-400 font-medium">E-mail</label>
+        <input type="email" id="email" name="email" placeholder="nome@exemplo.com" required
+          class="w-full px-4 py-3 rounded-md bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+      </div>
+
+      <div>
+        <label for="password" class="block mb-2 text-gray-400 font-medium">Senha</label>
+        <input type="password" id="password" name="password" placeholder="Escolha uma senha (min 8 caracteres)" minlength="8" required
+          class="w-full px-4 py-3 rounded-md bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+      </div>
+
+      <div>
+        <label for="confirm_password" class="block mb-2 text-gray-400 font-medium">Confirmar Senha</label>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Repita sua senha" minlength="8" required
+          class="w-full px-4 py-3 rounded-md bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+      </div>
+
+      <button type="submit" class="w-full py-3 bg-sky-400 text-gray-900 font-semibold rounded-lg hover:bg-sky-500 transition-colors">
+        Registrar
+      </button>
+    </form>
+
+    <!-- Botão de voltar para a página de login -->
+<div class="mt-4">
+  <a href="{{ url_for('auth.login') }}"
+     class="inline-block w-full py-3 bg-transparent border border-sky-400 text-sky-400 rounded-lg text-center hover:bg-sky-500 hover:text-gray-900 transition-colors">
+    Voltar para Login
+  </a>
+</div>
+
+  </div>
+</body>
+</html>

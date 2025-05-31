@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Histórico de Uploads - Airline Predictor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen font-sans p-4">
+
+  <div class="bg-gray-800 p-8 rounded-xl w-full max-w-4xl shadow-lg">
+    <h2 class="text-sky-400 text-3xl mb-6 text-center font-semibold">Histórico de Uploads</h2>
+
+    {% if uploads %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-gray-700 rounded-lg overflow-hidden shadow-md">
+          <thead class="bg-gray-600 text-gray-300 text-left">
+            <tr>
+              <th class="px-4 py-3">Nome Original</th>
+              <th class="px-4 py-3">Nome do Arquivo</th>
+              <th class="px-4 py-3">Data de Upload</th>
+              <th class="px-4 py-3">Processado</th>
+              <th class="px-4 py-3">Nº de Linhas</th>
+              <th class="px-4 py-3 text-center">Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for upload in uploads %}
+              <tr class="border-t border-gray-600 hover:bg-gray-600 transition">
+                <td class="px-4 py-3">{{ upload.original_filename }}</td>
+                <td class="px-4 py-3 text-sm text-gray-400">{{ upload.filename }}</td>
+                <td class="px-4 py-3">{{ upload.upload_date }}</td>
+                <td class="px-4 py-3">
+                  {% if upload.processed %}
+                    <span class="text-green-400 font-medium">Sim</span>
+                  {% else %}
+                    <span class="text-red-400 font-medium">Não</span>
+                  {% endif %}
+                </td>
+                <td class="px-4 py-3">{{ upload.num_rows }}</td>
+                <td class="px-4 py-3 text-center">
+                  <a href="{{ url_for('history.download_file', filename=upload.filename) }}"
+                     class="bg-sky-400 text-gray-900 font-semibold px-3 py-2 rounded hover:bg-sky-500 transition">
+                    Baixar
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-center text-pink-400 mt-6">Nenhum upload encontrado.</p>
+    {% endif %}
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registros da tabela {{ table }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-300 font-sans min-h-screen p-5">
+
+  <h1 class="text-3xl text-sky-400 font-bold mb-6 select-none">Registros da tabela {{ table }}</h1>
+
+  <form method="get" action="{{ url_for('admin.admin_table', table=table) }}" 
+        class="mb-6 flex flex-wrap gap-3 items-center"
+        >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <input type="text" name="search" placeholder="Pesquisar..." 
+           value="{{ search | default('') }}"
+           class="px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-400 flex-grow min-w-[180px]"
+           />
+
+    <label for="column" class="ml-2">Coluna:</label>
+    <select name="column" id="column"
+            class="px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-400"
+            >
+      {% for col in columns %}
+      <option value="{{ col }}" {% if col == column %}selected{% endif %}>{{ col }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit"
+            class="bg-sky-400 hover:bg-sky-500 text-gray-900 font-semibold px-5 py-2 rounded-md transition-colors"
+            >
+      Buscar
+    </button>
+  </form>
+
+  {% if rows %}
+  <div class="overflow-x-auto rounded-lg shadow-lg mb-6">
+    <table class="min-w-full bg-gray-800 border border-gray-700">
+      <thead>
+        <tr class="bg-gray-900 text-gray-300 select-none">
+          {% for col in columns %}
+          <th class="border border-gray-700 px-4 py-2 text-left font-semibold">{{ col }}</th>
+          {% endfor %}
+          <th class="border border-gray-700 px-4 py-2 text-left font-semibold">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr class="even:bg-gray-700 odd:bg-gray-800">
+          {% for col in columns %}
+          <td class="border border-gray-700 px-4 py-2">{{ row[col] }}</td>
+          {% endfor %}
+          <td class="border border-gray-700 px-4 py-2 space-x-2">
+            <a href="{{ url_for('admin.admin_edit', table=table, record_id=row['id']) }}"
+               class="inline-block bg-sky-400 hover:bg-sky-500 text-gray-900 font-bold px-3 py-1 rounded-md transition-colors"
+               >
+               Editar
+            </a>
+            <form action="{{ url_for('admin.admin_delete', table=table, record_id=row['id']) }}" method="POST" class="inline"
+                  onsubmit="return confirm('Tem certeza que deseja deletar o registro {{ row[id] }}?')"
+                  >
+              <button type="submit"
+                      class="bg-red-600 hover:bg-red-700 text-gray-100 font-bold px-3 py-1 rounded-md transition-colors"
+                      >
+                Deletar
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center text-gray-400 font-semibold space-x-6 mb-10 select-none">
+    {% if page > 1 %}
+    <a href="{{ url_for('admin.admin_table', table=table, page=page-1, search=search, column=column) }}"
+       class="text-sky-400 hover:underline focus:underline focus:outline-none"
+       >
+       ← Anterior
+    </a>
+    {% endif %}
+
+    <span>Página {{ page }} de {{ total_pages }}</span>
+
+    {% if page < total_pages %}
+    <a href="{{ url_for('admin.admin_table', table=table, page=page+1, search=search, column=column) }}"
+       class="text-sky-400 hover:underline focus:underline focus:outline-none"
+       >
+       Próxima →
+    </a>
+    {% endif %}
+  </div>
+
+  {% else %}
+  <p class="text-center text-gray-400 font-semibold select-none">Nenhum registro encontrado.</p>
+  {% endif %}
+
+  <a href="{{ url_for('admin.admin_index') }}"
+     class="inline-block mt-8 text-sky-400 hover:underline focus:underline focus:outline-none"
+     >
+     ← Voltar ao dashboard
+  </a>
+
+</body>
+</html>

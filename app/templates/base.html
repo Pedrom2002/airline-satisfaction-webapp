@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Meu Projeto Flask{% endblock %}</title>
+  <!-- Tailwind CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+  <!-- Navbar simples -->
+  <nav class="bg-blue-600 text-white p-4 shadow-md">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="{{ url_for('prediction.index') }}" class="font-bold text-xl">Meu Projeto</a>
+      <div>
+        <a href="{{ url_for('auth.login') }}" class="mr-4 hover:underline">Login</a>
+        <a href="{{ url_for('auth.register') }}" class="hover:underline">Registrar</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mensagens flash -->
+  <div class="container mx-auto mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2">
+          {% for category, message in messages %}
+            <div class="px-4 py-3 rounded shadow
+                {% if category == 'success' %} bg-green-500 text-white {% endif %}
+                {% if category == 'error' %} bg-red-500 text-white {% endif %}
+                {% if category == 'warning' %} bg-yellow-400 text-black {% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Conteúdo principal -->
+  <main class="container mx-auto flex-grow px-4 py-8 bg-white rounded shadow-md mt-6">
+    {% block content %}
+    <!-- Conteúdo específico da página aqui -->
+    {% endblock %}
+  </main>
+
+  <!-- Footer simples -->
+  <footer class="bg-gray-200 text-center p-4 mt-auto">
+    <small>© 2025 Meu Projeto Flask</small>
+  </footer>
+
+</body>
+</html>

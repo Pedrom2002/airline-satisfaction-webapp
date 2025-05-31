@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editar Registro - {{ table }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-300 font-sans min-h-screen flex flex-col items-center p-5">
+
+  <h1 class="text-sky-400 font-bold text-2xl mb-8 text-center select-none">
+    Editar registro {{ row['id'] }} da tabela {{ table }}
+  </h1>
+
+  <form method="POST" novalidate
+        class="bg-gray-800 rounded-xl p-8 shadow-lg w-full max-w-lg"
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <table class="w-full border-separate border-spacing-y-3">
+      <tbody>
+        {% for col in columns %}
+          {% if col != 'id' %}
+          <tr>
+            <td class="align-middle px-3 py-1">
+              <label for="{{ col }}" class="block font-semibold text-gray-400 text-base">{{ col }}</label>
+            </td>
+            <td class="px-3 py-1">
+              <input type="text" id="{{ col }}" name="{{ col }}" value="{{ row[col]|e }}"
+                     class="w-full px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 text-base
+                            focus:outline-none focus:ring-2 focus:ring-sky-400 transition-colors" />
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button type="submit"
+            class="mt-8 w-full bg-sky-400 hover:bg-sky-500 text-gray-900 font-bold text-lg py-3 rounded-lg
+                   transition-colors cursor-pointer"
+    >
+      Salvar
+    </button>
+  </form>
+
+  <a href="{{ url_for('admin.admin_table', table=table) }}"
+     class="mt-6 text-sky-400 font-semibold text-center hover:text-sky-500 transition-colors select-none"
+  >
+    ← Voltar
+  </a>
+
+</body>
+</html>

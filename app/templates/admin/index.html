@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard – Airline Satisfaction Predictor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-300 min-h-screen flex flex-col font-sans">
+
+  <header class="bg-gray-800 py-5 text-center relative">
+    <a href="{{ url_for('prediction.index') }}"
+       class="absolute left-5 top-1/2 -translate-y-1/2 text-sky-400 font-bold hover:underline focus:underline">
+      ← Voltar para Home
+    </a>
+    <h1 class="text-sky-400 text-4xl font-semibold select-none">Admin Dashboard</h1>
+  </header>
+
+  <main class="flex-grow container mx-auto px-6 py-10">
+    <h2 class="text-sky-400 text-3xl mb-8 text-center font-bold">Tabelas do Banco de Dados</h2>
+    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {% for table in tables %}
+      <li>
+        <a href="{{ url_for('admin.admin_table', table=table) }}"
+           class="block bg-gray-800 rounded-2xl p-6 shadow-lg transform hover:scale-[1.02] transition">
+          <span class="text-xl font-semibold text-sky-400">{{ table|capitalize }}</span>
+          <p class="mt-2 text-sm text-gray-400">Gerenciar registros de “{{ table }}”</p>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </main>
+
+  <footer class="text-center py-4 text-gray-500 border-t border-gray-800 text-sm select-none">
+    &copy; 2025 Airline Predictor
+  </footer>
+
+</body>
+</html>

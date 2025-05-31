@@ -1,0 +1,598 @@
+openapi: 3.0.0
+info:
+  title: API de Predição de Satisfação de Passageiros
+  version: "1.0.0"
+  description: >
+    Esta especificação descreve as rotas principais da sua aplicação Flask de predição de
+    satisfação de passageiros. Inclui autenticação via sessão, upload de CSV, predição,
+    histórico de resultados, perfil de usuário e rotas administrativas.
+
+servers:
+  - url: http://localhost:5000
+    description: Servidor de desenvolvimento
+
+components:
+  schemas:
+    # --------------------------------------------------
+    # Esquemas de Autenticação
+    # --------------------------------------------------
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+        - confirm_password
+      properties:
+        username:
+          type: string
+          example: "joaodasilva"
+        email:
+          type: string
+          format: email
+          example: "joao@example.com"
+        password:
+          type: string
+          format: password
+          example: "SenhaForte123!"
+        confirm_password:
+          type: string
+          format: password
+          example: "SenhaForte123!"
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "joao@example.com"
+        password:
+          type: string
+          format: password
+          example: "SenhaForte123!"
+
+    AuthResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Login bem-sucedido."
+        next:
+          type: string
+          description: "URL para redirecionamento opcional após login."
+
+    # --------------------------------------------------
+    # Esquemas de Perfil de Usuário
+    # --------------------------------------------------
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 42
+        username:
+          type: string
+          example: "joaodasilva"
+        email:
+          type: string
+          format: email
+          example: "joao@example.com"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-05-01T14:23:00Z"
+
+    ChangePasswordRequest:
+      type: object
+      required:
+        - old_password
+        - new_password
+        - confirm_new_password
+      properties:
+        old_password:
+          type: string
+          format: password
+          example: "SenhaAntiga123!"
+        new_password:
+          type: string
+          format: password
+          example: "NovaSenha123!"
+        confirm_new_password:
+          type: string
+          format: password
+          example: "NovaSenha123!"
+
+    ChangePasswordResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Senha alterada com sucesso."
+
+    # --------------------------------------------------
+    # Esquemas de Upload e Predição
+    # --------------------------------------------------
+    CSVUploadResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Arquivo CSV processado com sucesso."
+        prediction_id:
+          type: integer
+          description: "ID interno para rastrear essa predição."
+          example: 123
+
+    PredictionResult:
+      type: object
+      properties:
+        passenger_id:
+          type: integer
+          example: 1
+        satisfaction_prediction:
+          type: string
+          example: "satisfied"
+        probability:
+          type: number
+          format: float
+          example: 0.92
+
+    PredictionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Predição concluída."
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/PredictionResult"
+
+    # --------------------------------------------------
+    # Esquemas de Histórico
+    # --------------------------------------------------
+    HistoryEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        user_id:
+          type: integer
+          example: 42
+        filename:
+          type: string
+          example: "upload_pasajeros.csv"
+        processed_at:
+          type: string
+          format: date-time
+          example: "2025-05-30T16:45:12Z"
+        num_records:
+          type: integer
+          example: 250
+        accuracy:
+          type: number
+          format: float
+          example: 0.87
+
+    HistoryResponse:
+      type: object
+      properties:
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryEntry"
+
+    # --------------------------------------------------
+    # Esquemas Administrativos
+    # --------------------------------------------------
+    UserListEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 42
+        username:
+          type: string
+          example: "joaodasilva"
+        email:
+          type: string
+          format: email
+          example: "joao@example.com"
+        is_active:
+          type: boolean
+          example: true
+
+    UserListResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserListEntry"
+
+  securitySchemes:
+    # Como o seu projeto usa sessão (cookie-based auth), definimos segurança simples
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session
+
+  parameters:
+    # Parâmetros reutilizáveis para paginação
+    pageParam:
+      name: page
+      in: query
+      description: "Número da página para paginação"
+      required: false
+      schema:
+        type: integer
+        example: 1
+    perPageParam:
+      name: per_page
+      in: query
+      description: "Itens por página"
+      required: false
+      schema:
+        type: integer
+
+security:
+  - cookieAuth: []
+
+paths:
+
+  # ==================================================
+  # 1. Autenticação (Blueprint: auth)
+  # ==================================================
+  /auth/register:
+    post:
+      tags:
+        - Autenticação
+      summary: Registra um novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "200":
+          description: Registro criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Registro realizado com sucesso."
+        "400":
+          description: Erro de validação (usuário existente, senhas não coincidem, etc.)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Email já cadastrado."
+
+  /auth/login:
+    post:
+      tags:
+        - Autenticação
+      summary: Realiza login de usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login bem-sucedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Email ou senha incorretos."
+
+  /auth/logout:
+    get:
+      tags:
+        - Autenticação
+      summary: Encerra sessão do usuário
+      responses:
+        "302":
+          description: Redirecionado para a página de login
+
+  # ==================================================
+  # 2. Perfil de Usuário (Blueprint: users/profile)
+  # ==================================================
+  /profile:
+    get:
+      tags:
+        - Perfil
+      summary: Retorna informações do perfil do usuário logado
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Perfil do usuário
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Autenticação necessária."
+
+  /profile/change_password:
+    post:
+      tags:
+        - Perfil
+      summary: Altera a senha do usuário logado
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "200":
+          description: Senha alterada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePasswordResponse"
+        "400":
+          description: Erro de validação (senhas não conferem ou senha antiga incorreta)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Senha antiga incorreta."
+
+  # ==================================================
+  # 3. Upload & Predição (Blueprint: prediction ou main)
+  # ==================================================
+  /predict/upload:
+    post:
+      tags:
+        - Predição
+      summary: Recebe arquivo CSV e dispara processamento
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "Arquivo CSV com dados dos passageiros."
+      responses:
+        "200":
+          description: Arquivo enviado e processado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CSVUploadResponse"
+        "400":
+          description: Erro no arquivo CSV (formato inválido, colunas faltantes, etc.)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Coluna 'Age' não encontrada no CSV."
+
+  /predict/result/{prediction_id}:
+    get:
+      tags:
+        - Predição
+      summary: Retorna resultados de predição para um ID específico
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: prediction_id
+          in: path
+          required: true
+          description: "ID retornado na etapa de upload."
+          schema:
+            type: integer
+            example: 123
+      responses:
+        "200":
+          description: Lista de resultados de predição
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PredictionResponse"
+        "404":
+          description: Predição não encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Predição com ID 123 não encontrada."
+
+  # ==================================================
+  # 4. Histórico de previsões (Blueprint: history)
+  # ==================================================
+  /history:
+    get:
+      tags:
+        - Histórico
+      summary: Lista o histórico de predições do usuário logado
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: "#/components/parameters/pageParam"
+        - $ref: "#/components/parameters/perPageParam"
+      responses:
+        "200":
+          description: Histórico de predições
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HistoryResponse"
+        "401":
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Autenticação necessária."
+
+  # ==================================================
+  # 5. Rotas Administrativas (Blueprint: admin)
+  # ==================================================
+  /admin/users:
+    get:
+      tags:
+        - Administração
+      summary: Lista todos os usuários (apenas administradores)
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Lista de usuários
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+        "403":
+          description: Acesso negado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Permissão insuficiente."
+
+  /admin/user/{user_id}:
+    get:
+      tags:
+        - Administração
+      summary: Retorna detalhes de um usuário (apenas administradores)
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: "ID do usuário a ser consultado."
+          schema:
+            type: integer
+            example: 42
+      responses:
+        "200":
+          description: Detalhes do usuário
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListEntry"
+        "404":
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuário 42 não encontrado."
+        "403":
+          description: Acesso negado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Permissão insuficiente."
+    delete:
+      tags:
+        - Administração
+      summary: Remove um usuário (apenas administradores)
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: "ID do usuário a ser removido."
+          schema:
+            type: integer
+            example: 42
+      responses:
+        "200":
+          description: Usuário removido com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuário 42 removido."
+        "404":
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuário 42 não encontrado."
+        "403":
+          description: Acesso negado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Permissão insuficiente."

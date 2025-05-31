@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <title>Resultados - Airline Predictor</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex flex-col">
+
+<header class="bg-gray-800 text-center py-5 shadow-md">
+  <h1 class="text-3xl font-bold text-blue-400">Airline Passenger Satisfaction Predictor</h1>
+</header>
+
+<nav class="bg-gray-700 flex justify-between items-center px-6 py-3 shadow-inner">
+  <a href="{{ url_for('prediction.index') }}" class="text-gray-200 font-semibold hover:text-blue-400 transition-colors">Home</a>
+  <a href="{{ url_for('auth.logout') }}" class="text-gray-200 font-semibold hover:text-blue-400 transition-colors">Logout</a>
+</nav>
+
+<main class="flex-grow max-w-7xl mx-auto p-6 space-y-12">
+
+  <!-- Resumo de Previsões -->
+  <section class="space-y-6">
+    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center relative">Resumo de Previsões</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Passageiros</h3>
+        <p class="text-xl font-extrabold">{{ num_passengers }}</p>
+      </div>
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Taxa de Satisfação</h3>
+        <p class="text-xl font-extrabold">{{ satisfaction_rate }}%</p>
+      </div>
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Confiança Média</h3>
+        <p class="text-xl font-extrabold">{{ avg_proba }}%</p>
+      </div>
+      {% if avg_service_entropy is not none %}
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Entropia Média</h3>
+        <p class="text-xl font-extrabold">{{ avg_service_entropy }}</p>
+      </div>
+      {% endif %}
+      {% if accuracy is not none %}
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Accuracy</h3>
+        <p class="text-xl font-extrabold">{{ accuracy }}%</p>
+      </div>
+      {% endif %}
+      {% if roc_auc is not none %}
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">ROC AUC</h3>
+        <p class="text-xl font-extrabold">{{ roc_auc }}%</p>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Métricas de Atrasos e Serviço -->
+  <section class="space-y-6">
+    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center relative">Métricas de Atrasos e Serviço</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Atraso Médio</h3>
+        <p class="text-xl font-extrabold">{{ avg_total_delay }} min</p>
+      </div>
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Índice de Atraso</h3>
+        <p class="text-xl font-extrabold">{{ delay_indicator_rate }}%</p>
+      </div>
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Service Score Médio</h3>
+        <p class="text-xl font-extrabold">{{ avg_service_score }}</p>
+      </div>
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Consistência do Serviço</h3>
+        <p class="text-xl font-extrabold">{{ avg_service_consistency }}</p>
+      </div>
+      <div class="bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow text-center">
+        <h3 class="text-lg font-medium mb-2">Delay Ratio Médio</h3>
+        <p class="text-xl font-extrabold">{{ avg_delay_ratio }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gráficos principais -->
+  <section class="space-y-10 max-w-4xl mx-auto">
+    <div>
+      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center relative">Distribuição por Faixa Etária</h2>
+      <div class="overflow-x-auto">{{ age_group_html|safe }}</div>
+    </div>
+    <div>
+      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center relative">Categoria de Atrasos</h2>
+      <div class="overflow-x-auto">{{ delay_cat_html|safe }}</div>
+    </div>
+    <div>
+      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center relative">Distribuição das Previsões</h2>
+      <div class="overflow-x-auto">{{ graph_html|safe }}</div>
+    </div>
+    <div>
+      <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 mb-4 text-center relative">Distribuição das Probabilidades</h2>
+      <div class="overflow-x-auto">{{ prob_html|safe }}</div>
+    </div>
+  </section>
+
+  <!-- Tabela de Correlações -->
+  <section class="space-y-6 max-w-full">
+    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center relative">Tabela Ordenada de Correlações (abs(corr) ≥ 0.1)</h2>
+    <div id="correlation-loading">Carregando tabela de correlações...</div>
+    <div id="correlation-table-wrapper" class="hidden bg-gray-800 p-6 rounded-lg shadow overflow-x-auto">
+      {% if tables and tables|length > 0 %}
+        {{ tables[0]|safe }}
+      {% else %}
+        <p class="text-gray-400 text-center">Nenhuma correlação relevante.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Gráficos de pizza por variável -->
+  <section class="py-12 px-4 max-w-7xl mx-auto">
+    <h2 class="text-4xl font-extrabold text-center text-blue-500 mb-8 relative before:content-[''] before:block before:w-20 before:h-1 before:bg-blue-500 before:mx-auto before:mt-2">Satisfação por Variável</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for var, plot_html in pizza_imgs.items() %}
+      <div class="bg-gray-800 rounded-2xl overflow-hidden shadow-lg transform hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+        <div class="bg-blue-600 px-4 py-3">
+          <h3 class="text-lg font-semibold text-white text-center">{{ var }}</h3>
+        </div>
+        <div class="p-6">
+          <div class="aspect-video w-full">{{ plot_html|safe }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Dados com previsões. -->
+  <section class="space-y-6 max-w-full">
+    <h2 class="text-3xl font-semibold text-blue-400 border-b-4 border-blue-600 pb-2 text-center relative">Dados com Predições</h2>
+    <div class="bg-gray-800 p-6 rounded-lg shadow overflow-x-auto">
+      {% if df_table_html %}
+        {{ df_table_html | safe }}
+      {% else %}
+        <p class="text-gray-400 text-center">Nenhum dado disponível.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Botão de download -->
+  <div class="text-center mt-10">
+    <a href="{{ url_for('history.download_file', filename=filename) }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded shadow transition-colors duration-300">📥 Baixar CSV</a>
+  </div>
+
+</main>
+
+<footer class="bg-gray-800 text-gray-400 text-center text-sm py-4 mt-auto">
+  © 2025 Airline Predictor
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $('table.data:not(.correlation-sorted)').DataTable({
+      order: [[2, 'desc']],
+      pageLength: 10,
+      lengthMenu: [5, 10, 20, 50],
+      language: {
+        search: "Pesquisar:",
+        lengthMenu: "Mostrar _MENU_ entradas",
+        info: "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+        paginate: {
+          first: "Primeiro",
+          last: "Último",
+          next: "Próximo",
+          previous: "Anterior"
+        }
+      }
+    });
+
+    const corrTable = $('#correlation-table-wrapper table.correlation-sorted');
+    if (corrTable.length) {
+      corrTable.DataTable({
+        deferRender: true,
+        pageLength: 10,
+        lengthMenu: [5, 10, 20, 50],
+        order: [[1, 'desc']],
+        language: {
+          search: "Pesquisar:",
+          lengthMenu: "Mostrar _MENU_ linhas",
+          info: "Mostrando _START_ a _END_ de _TOTAL_ linhas",
+          paginate: {
+            first: "Primeiro",
+            last: "Último",
+            next: "Próximo",
+            previous: "Anterior"
+          },
+          zeroRecords: "Nenhum registro encontrado"
+        },
+        initComplete: function() {
+          $('#correlation-loading').hide();
+          $('#correlation-table-wrapper').removeClass('hidden');
+        }
+      });
+    } else {
+      $('#correlation-loading').hide();
+      $('#correlation-table-wrapper').removeClass('hidden');
+    }
+  });
+</script>
+</body>
+</html>

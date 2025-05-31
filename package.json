@@ -1,0 +1,14 @@
+{
+  "name": "flask-tailwind-project",
+  "version": "1.0.0",
+  "description": "Projeto Flask com Tailwind CSS",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./static/css/output.css --minify",
+    "watch:css": "tailwindcss -i ./src/input.css -o ./static/css/output.css --watch"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17"
+  }
+}
